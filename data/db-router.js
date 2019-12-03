@@ -114,14 +114,14 @@ router.delete('/:id', (req, res) => {
     db.remove(id)
     .then(removed => {
         if (removed) {
-            res.status(200).json({ message: 'user removed successfully', removed })   
+            res.status(200).json({ message: 'post removed successfully', removed })   
         } else {
-            res.status(404).json({ message: 'The user with the specified ID does not exist.' })
+            res.status(404).json({ message: 'The post with the specified ID does not exist.' })
         }
     })
     .catch(error => {
         console.log('error on DELETE /api/users/:id', error);
-        res.status(500).json({ error: 'The user could not be removed' })
+        res.status(500).json({ error: 'The post could not be removed' })
     })
 })
 
