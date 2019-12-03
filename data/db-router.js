@@ -7,6 +7,8 @@ const router = express.Router();
 router.use(express.json());
 
 
+// ----------------------------------------- GET -------------------------------------------- //
+
 // GET request for all posts
 router.get('/', (req, res) => {
     db.find()
@@ -19,41 +21,94 @@ router.get('/', (req, res) => {
     })
 })
 
-// GET request for specific user 
+// GET request for specific post by id 
 router.get('/:id', (req, res) => {
     const id = req.params.id;
         db.findById(id) 
-        .then(user => {
-            if (user) {
-                res.status(200).json(user);
+        .then(post => {
+            if (post[0]) {
+                res.status(200).json(post[0]);
             } else {
-                res.status(404).json({ message: 'The user with the specified ID does not exist' })
+                res.status(404).json({ message: 'The post with the specified ID does not exist' })
             }
         })
         .catch(error => {
-            console.log('error on GET /api/users/:id', error);
-            res.status(500).json({ error: 'The user information could not be retrieved.' })
-        })  
+            console.log('error on GET /api/posts/:id', error);
+            res.status(500).json({ error: 'The post information could not be retrieved.' })
+        })        
 }) 
 
-// POST request for adding a user
+// GET request for all comments on a specific post 
+router.get('/:id/comments', (req, res) => {
+    const id = req.params.id;
+        db.findById(id) 
+        .then(post => {
+            if (!post[0]) {
+                res.status(404).json({ message: 'The post with the specified ID does not exist' })
+            }
+        })
+        .catch(error => {
+            console.log('error on GET /api/posts/:id', error);
+            res.status(500).json({ error: 'The post information could not be retrieved.' })
+        })
+        db.findPostComments(id)
+        .then(comments => {
+            res.status(200).json(comments);
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).json({ error: 'The comments information could not be retrieved.' })
+        })        
+})
+
+// -------------------------------------- POST -------------------------------------------- //
+
+// POST request for adding a post
 router.post('/', (req, res) => {
-    const usersData = req.body;
-    if (!usersData.name || !usersData.bio) {
-            res.status(400).json({ errorMessage: 'Please provide name and bio for the user.' })
+    const postData = req.body;
+    if (!postData.title || !postData.contents) {
+            res.status(400).json({ errorMessage: 'Please provide title and contents for the post.' })
         } else {
-            db.insert(usersData)    
-            .then(user => {
-                res.status(201).json(user);
+            db.insert(postData)    
+            .then(post => {
+                res.status(201).json({ success: `post was successfully added`});
             })
             .catch(error => {
-                console.log('error on POST /api/users', error);
-                res.status(500).json({ error: 'There was an error while saving the user to the database' })
+                console.log('error on POST /api/posts', error);
+                res.status(500).json({ error: 'There was an error while saving the post to the database' })
             })
         }
 })
 
-// DELETE request for removing a user
+// POST request for adding a comment to a specific post
+router.post('/:id/comments', (req, res) => {
+    const commentData = req.body;
+    const id = req.params.id;
+        db.findById(id) 
+        .then(post => {
+            if (!post[0]) {
+                res.status(404).json({ message: 'The post with the specified ID does not exist' })
+            }
+        })
+        .catch(error => {
+            console.log('error on GET /api/posts/:id', error);
+            res.status(500).json({ error: 'The post information could not be retrieved.' })
+        })
+        if (!commentData.text) {
+            res.status(400).json({ errorMessage: 'Please provide text for the comment.' })
+        } else {
+            db.insertComment(commentData)    
+            .then(comment => {
+                res.status(201).json(comment);
+            })
+            .catch(error => {
+                console.log('error on POST /api/posts/:id/comments', error);
+                res.status(500).json({ error: 'There was an error while saving the comment to the database' })
+            })
+        }
+})
+
+// DELETE request for removing a post
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
     db.remove(id)
