@@ -82,8 +82,9 @@ router.post('/', (req, res) => {
 
 // POST request for adding a comment to a specific post
 router.post('/:id/comments', (req, res) => {
-    const commentData = req.body;
     const id = req.params.id;
+    req.body.post_id = id;
+    const commentData = req.body;
         db.findById(id) 
         .then(post => {
             if (!post[0]) {
