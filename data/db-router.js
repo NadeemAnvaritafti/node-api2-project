@@ -108,6 +108,8 @@ router.post('/:id/comments', (req, res) => {
         }
 })
 
+// --------------------------------------- DELETE ----------------------------------------- //
+
 // DELETE request for removing a post
 router.delete('/:id', (req, res) => {
     const id = req.params.id;
@@ -120,37 +122,39 @@ router.delete('/:id', (req, res) => {
         }
     })
     .catch(error => {
-        console.log('error on DELETE /api/users/:id', error);
+        console.log('error on DELETE /api/posts/:id', error);
         res.status(500).json({ error: 'The post could not be removed' })
     })
 })
 
-// PUT request for editing a user
+// -------------------------------------- PUT --------------------------------------------- //
+
+// PUT request for editing a post
 router.put('/:id', (req, res) => {
     const id = req.params.id;
-    const usersData = req.body;
+    const postData = req.body;
     
     db.findById(id) 
-        .then(user => {
-            if (!user) {
-                res.status(404).json({ message: 'The user with the specified ID does not exist' })
+        .then(post => {
+            if (!post[0]) {
+                res.status(404).json({ message: 'The post with the specified ID does not exist' })
             }
         })
         .catch(error => {
-            console.log('error on finding specific ID /api/users/:id', error);
-            res.status(500).json({ error: 'The user information could not be retrieved.' })
+            console.log('error on finding specific ID /api/posts/:id', error);
+            res.status(500).json({ error: 'The post information could not be retrieved.' })
         }) 
 
-    if (!usersData.name || !usersData.bio) {
-        res.status(400).json({ errorMessage: 'Please provide name and bio for the user.' })
+    if (!postData.title || !postData.contents) {
+        res.status(400).json({ errorMessage: 'Please provide title and contents for the post.' })
     }  else {
-        db.update(id, usersData)
-        .then(user => {
-            res.status(200).json({ message: `user ${id} was updated` });
+        db.update(id, postData)
+        .then(post => {
+            res.status(200).json({ message: `post ${id} was updated` });
         })
         .catch(error => {
-            console.log('error on PUT /api/users/:id', error);
-            res.status(500).json({ error: 'The user information could not be modified.' })
+            console.log('error on PUT /api/posts/:id', error);
+            res.status(500).json({ error: 'The post information could not be modified.' })
         })
     }
 })
